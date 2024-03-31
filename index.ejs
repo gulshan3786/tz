@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Time converter</title>
+  </head>
+  <body>
+    <form id="form1">
+      <label>Source time</label>
+      <input type="datetime-local" name="datetime" placeholder="YYYY-MM-DDTHH-MM-SS" />
+      <label for="cars">to  Time zone:</label>
+
+      <select name="tTimezone" id="ttz" >
+  
+      </select>
+      <!-- <label for="from time zone">from time zone:</label>
+      <select name="fTimezone" id="ftz" >
+  
+      </select> -->
+      <input type="button" value="convert" onclick="convert()">
+    </form>
+    <p id="res"></p>
+  </body>
+  <script>
+
+    // var selopt=document.getElementById("tz").add()
+    
+      async function  populatetimezone1(){
+        
+      const response=await fetch("/data");
+      const data=await response.json();
+      const selopt1=document.getElementById("ttz")
+      data.forEach(timezone=> {
+       const option= document.createElement("option");
+        option.value=timezone.timezone;
+        option.textContent=timezone.timezone;
+        selopt1.appendChild(option);
+      });
+      return data;
+    }
+
+    // async function  populatetimezone2(){
+        
+    //     const response=await fetch("/data");
+    //     const data=await response.json();
+    //     const selopt=document.getElementById("ftz")
+    //     data.forEach(timezone=> {
+    //      const option= document.createElement("option");
+    //       option.value=timezone.timezone;
+    //       option.textContent=timezone.timezone;
+    //       selopt.appendChild(option);
+    //     });
+    //     return data;
+    //   }
+    
+    window.onload= async function(){
+      const timezone=await populatetimezone1();
+      // await populatetimezone2();
+    console.log("hsd",timezone)
+    }
+    async function convert() {
+      const form = document.getElementById('form1');
+        const formData = new FormData(form);
+        const serializedFormData = {};
+
+        for (const [key, value] of formData.entries()) {
+            const fieldName = key.replace('[]', '');
+            if (!serializedFormData[fieldName]) {
+                serializedFormData[fieldName] = [];
+            }
+            serializedFormData[fieldName].push(value);
+        }
+        console.log(serializedFormData)
+
+  try {
+    const response = await fetch("/data", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json" 
+      },
+      body: JSON.stringify(serializedFormData) 
+    });
+
+    if (!response.ok) {
+      throw new Error(`HTTP error! Status: ${response.status}`);
+    }
+
+    const responseData = await response.json(); 
+    console.log("Response from server:", responseData);
+   
+    document.getElementById("res").innerHTML="The coneverted time is:-"+" "+responseData.dateString;;
+
+  } catch (error) {
+    console.error("Error sending data to server:", error);
+  }
+}
+
+  
+  </script>
+</html>
